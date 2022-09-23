@@ -1,14 +1,24 @@
-<div class="min-h-full container mx-auto py-6">
+<div class="min-h-full container mx-auto">
     <nav class="bg-accent-blue">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="px-4 py-4">
         <div class="flex h-16 items-center justify-between">
           <div class="flex items-center">
-          
+            <div class="flex flex-col items-center gap-2 ">
+              @foreach($companies as $company)
+              <a href="/dashboard">
+                  <div class="flex items-center">
+                      <img class="h-14 w-14 rounded-full mr-3" src="{{asset('images/'. $company->company_logo)}}" alt="">
+                      <div class="flex flex-col ">
+                          <h2 class="text-xl font-bold text-gray-800">{{$company->company_name}}</h2>
+                          <h3 class="text-sm font-bold text-gray-800">Property Management System</h3>
+                      </div>
+                  </div>
+              </a>
+              @endforeach
+          </div>
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
             
-                
-                
               </div>
             </div>
           </div>
@@ -27,7 +37,7 @@
                 <div class="flex">
                   <button type="button" class="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                     <span class="sr-only">Open user menu</span>
-                    <img class="h-8 w-8 rounded-full" src="{{asset('images/'. $user->admin_image)}} " alt="">
+                    <img class="h-8 w-8 rounded-full" src="{{asset('images/'. auth()->user()->employee_image)}} " alt="">
                     <h1></h1>
                   </button>
                   <h3 class="text-letter ml-2 items-center"></h3>

@@ -1,4 +1,6 @@
-<div class="grid col-span-3 h-full bg-gray-text pt-3 px-2 border border-border-gray items-start">
+
+<div class="h-full bg-gray-text py-2 px-2 border border-border-gray col-span-3">
+
     <table class="table-auto flex flex-col py-7 mt-8">
         <thead class="rounded-t-lg bg-accent-blue p-2 w-full ">
             <tr class="text-white">
@@ -11,17 +13,21 @@
                 <td class = "pb-0">- ID Number</td>
                 <td class = "pb-0">- Employee Name</td>
                 <td class = "pb-0">- Email Address</td>
-                <td class = "pb-0">- Def. Password</td>
+                <td class = "pb-0">- Position/Title</td>
+                <td class = "pb-0">- Password</td>
+                <td class = "pb-0">- Confirm Password</td>
             </tr>
             <tr class="pt-5 justify flex flex-col text-gray-text">
                 <th align="left">Please Upload:</th>
-                <td>Image: (.jpg, .jpeg, .png) formats</td>
+                <td>- Profile Image</td>
             </tr>
             <tr class="pt-5 justify flex flex-col text-gray-text">
                 <th align="left">Select:</th>
-                <td>- DEPARTMENT/OFFICE</td>
+                <td>- Department/Office</td>
+                <td>- User Type</td>
             </tr>
         </tbody>
     </table>
+
 
 </div>

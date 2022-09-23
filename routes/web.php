@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PropertyController;
 
 use App\Http\Controllers\UserController;
@@ -7,125 +8,120 @@ use App\Http\Controllers\EmployeeController;
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Property;
-use App\Models\Employee;
+use App\Models\User;
 use App\Models\Admin;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-// Route::get();
-// Route::post();
-// Route::put();
-// Route::patch();
-// Route::delete();
-// Route::options();
-// Route::permanentRedirect('/welcom','/');
-// Route::redirect('/welcome','/')
+use App\Models\Company;
+use Illuminate\Http\Request;
 
 
-// Route::get('/register',[UserController::class,'register']);
-Route::get('/', function (){
-    return view('landingpage');
+
+
+
+// Home Route
+Route::get('/companylanding', function (){
+    return view('landingpage')->with('company',Company::all());
 })->name('dashboard');
+
+// Dashboard Route
 Route::get('/dashboard', function (){
-    return view('admin.dashboard')->with('inventories',Property::all());
-})->middleware(['auth'])->name('dashboard');;
+    return view('admin.dashboard')->with('inventories',Property::all())->with('companies',Company::all());
+})->middleware(['auth'])->name('dashboard');
 
-
-
-// Property Routes
-Route::post('/createproperty',[PropertyController::class,'create'])->name('createproperty');
-Route::get('/addproperty',function(){
-    return view('admin.addproperty')->with('employees',Employee::all());
-});
-
-
-
-
-// Employee Routes
-
-Route::get('/addemployee',function(){
-    return view('admin.addemployee');
-})->name('addemployee');
-
-Route::get('/employeelist',function (){
-    return view('admin.employeelist')->with('employees',Employee::all());
-})->name('employeelist');
-Route::post('/addemployeelist',[EmployeeController::class,'create'])->name('addemployeelist');
-
-
-// Inventory Routes
-
-Route::get('/inventory',function(){
-
-    return view('admin.inventory')->with('inventories', Property::all());
-})->name('inventories');
-
-//Issuance
-
-Route::get('/issuance',function(){
-    return view('admin.issuance');
-})->name('issuance');
-
-// Register
-Route::get('/register',function(){
-    return view('admin.register');
-})->name('register');
-Route::post('/user',[UserController::class,'store']);
-//admin
+//  Login/logout  Route
 Route::get('/login',function(){
     return view('admin.login');
 })->name('login');
 Route::post('/login/process',[UserController::class, 'process']);
-
-
 Route::post('/logout',[UserController::class, 'logout']);
 
-//employee
+// User Register Route
+Route::get('/register',function(){
+    return view('admin.register');
+})->name('register');
+
+Route::post('/user',[UserController::class,'store']);
+
+// Employe Route
+Route::get('/addemployee',function(){
+    return view('admin.addemployee')->with('companies',Company::all());
+})->name('addemployee');
+
+Route::get('/employeelist',function (){
+    return view('admin.employeelist')->with('users',User::all())->with('companies',Company::all());
+})->name('employeelist');
+
+Route::get('/employee/dashboard/',function(){
+    return view('employee.dashboard')->with('inventories',Property::all())->with('companies',Company::all());
+})->middleware(['auth'])->name('dashboard');
+
+Route::get('/employee/profile/{id}', function($id){
+    return view('employee.profile')->with('users',User::find($id));
+});
 
 
-Route::get('/employee/login',function(){
-    return view('employee.login')->with('employees',Employee::all());
-});
-Route::post('employee/login/process',[EmployeeController::class,'process']);
 
-Route::get('/employee/dashboard',function(){
-    return view('employee.dashboard')->with('user', auth()->user());
-});
-
-Route::get('/employee/profile', function(){
-    return view('employee.profile')->with('user', auth()->user());
-});
-Route::get('/employee/property-transfer', function(){
-    return view('employee.transfer-property');
-});
-Route::get('/employee/property-return', function(){
-    return view('employee.return-property');
-});
-Route::get('/employee/change-password
-', function(){
-    return view('employee.changepassword');
-});
-
-Route::post('updateemployee',
-[EmployeeController::class,'update']
-)->name('updateemployee');
+Route::post('updateemployee',[UserController::class,'update'])->name('updateemployee');
 
 Route::get('employeeupdate/{id}',
 function($id){
-    return view('admin.employeeupdate')->with('employee',Employee::find($id));
-}
-)->name('employeeupdate');
+    return view('admin.employeeupdate')->with('employee',User::find($id))->with('companies',Company::all());
+})->name('employeeupdate');
+Route::post('getproperties',function(Request $request){
+    $user = User::find($request->id);
+    
+    $properties = $user->properties;
+    
+    return json_encode($properties);
+})->name('getproperties');
 
 
-Route::get('/search',[PropertyController::class, 'search']);
+// Property Routes
+Route::post('/createproperty',[PropertyController::class,'create'])->name('createproperty');
 
+Route::get('/addproperty',function(){
+    return view('admin.addproperty')->with('users',User::all())->with('companies',Company::all());
+});
+Route::post('/updateproperty',
+    [PropertyController::class, 'update']
+)->name('updateproperty');
+
+
+
+Route::get('propertyupdate/{id}',
+function($id){
+    return view('admin.propertyupdate')->with('property',Property::find($id))->with('companies',Company::all());
+})->name('propertyupdate');
+
+// Inventory Routes
+Route::get('/inventory',function(){
+
+    return view('admin.inventory')->with('inventories', Property::all())->with('companies',Company::all());
+})->name('inventories');
+
+
+Route::get('/signin',function(){
+
+    return view('company.signin');
+});
+Route::get('/',function(){
+
+    return view('company.landingpage');
+});
+Route::get('/companyreg',function(){
+
+    return view('company.companyreg');
+});
+Route::post('companyreg', [CompanyController::class, 'store']);
+    
+
+Route::get('/home', function(){
+    return view('company.landingpage');
+});
+
+// Change password Routes
+Route::post('passwordchange',[UserController::class,'change'])->name('passwordchange');
+
+Route::get('/employee/change-password/', function(){
+    return view('employee.changepassword')->with('companies',Company::all());
+})->name('changepassword');
 

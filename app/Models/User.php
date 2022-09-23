@@ -16,15 +16,18 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $fillable = [
-        'company_name',
-        'company_logo',
+        'id_number',
+        'name',
         'email',
-        'admin_name',
-        'admin_image',
+        'employee_image',
+        'employee_position',
+        'department',
+        'usertype',
         'password'
        
        
     ];
+   
  
     protected $hidden = [
         'password',
@@ -33,4 +36,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function properties(){
+        return $this->hasMany(Property::class);
+    }
 }

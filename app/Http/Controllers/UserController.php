@@ -6,6 +6,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+
+
+
 
 
 class UserController extends Controller
@@ -18,49 +22,57 @@ class UserController extends Controller
     }
 
     public function store(Request $request){
+    
       $request->validate([
-    "company_name"=>['required','min:4'],
-    "company_logo"=>'required|mimes:jpg,png,jpeg|max:5048',
-    "email" =>['required', 'email', Rule::unique('users','email')],
-    "admin_name"=>['required','min:4'],
-    "admin_image"=>'required|mimes:jpg,png,jpeg|max:5048',
-    "password" => 'required|confirmed|min:6'
+    'id_number'=>'required',   
+    'name'=>'required|min:4',
+    'email' =>['required', 'email', Rule::unique('users','email')],
+   'employee_image'=>'required|mimes:jpg,png,jpeg|max:5048',
+   'employee_position'=>'required',
+   'department'=>'required',
+   'usertype' =>'required',
+    'password' => 'required|confirmed|min:6'
    ]);
    $request['password'] = Hash::make( $request['password']);
-   
-   $newLogoName = time() . '-' .$request->company_name. "."  .$request->company_logo->extension();
-
- 
-   $newUserImage = time() . '-' .$request->user_name. "."  .$request->admin_image->extension();
-   $request->company_logo->move(public_path('images'),$newLogoName);
-   $request->admin_image->move(public_path('images'),$newUserImage);
+   $newUserImage = time() . '-' .$request->name. "."  .$request->employee_image->extension();
+   $request->employee_image->move(public_path('images'),$newUserImage);
    $user = User::create([
-      'company_name'=>$request->input('company_name'),
-      'company_logo'=> $newLogoName,
+      'id_number'=>$request->input('id_number'),
+      'name'=> $request->input('name'),
       'email'=>$request->input('email'),
-      'admin_name'=>$request->input('admin_name'),
-      'admin_image'=>$newUserImage ,
+       'employee_image'=>$newUserImage ,
+       'employee_position'=>$request->input('employee_position'),
+       'department'=>$request->input('department'),
+       'usertype' =>$request->input('usertype'),      
       'password'=>$request->input('password'),
     ]);
 
 
-   auth()->login($user);
    return redirect('/dashboard');
 
 }
 public function process(Request $request){
+
    $validated = $request->validate([
-      "admin_name" => 'required',
-      "password" => 'required'
+      "id_number" => 'required',
+      "password" => 'required',
+      "usertype" => 'required'
    ]);
    if(auth()->attempt($validated)){
       $request->session()->regenerate();
+      $usertype= $validated['usertype'];
+    
 
-      return redirect('/dashboard')->with('message', 'Welcome back!'. $validated['admin_name']. "!");
+      if($usertype == 'admin'){
+         return redirect('/dashboard')->with('message', 'Welcome back!');
+      }elseif($usertype == 'employee'){
+         return redirect('/employee/dashboard');
+      }
+      
    }
    else{
      
-return redirect('/login')->with('message', "Admin name does not exist!");
+return redirect('/companylanding')->with('message', "Admin name does not exist!");
    }
 }
 public function logout(Request $request){
@@ -68,7 +80,52 @@ public function logout(Request $request){
    $request->session()->invalidate();
    $request->session()->regenerateToken();
 
-   return redirect('/')->with('message','logout succesful');
+   return redirect('/companylanding')->with('message','Logout Succesful!');
 
 }
+public function update(Request $request){
+   $users = User::find($request->id);
+ 
+   $users ->name = $request->name;
+   $users ->email = $request->email;
+   $users->usertype =$request->usertype;
+
+   $users ->department=$request->department;
+
+   $users->save();
+
+   return redirect('/employeelist')->with('success', 'Employee updated.');
 }
+
+public function change(Request $request){
+   if (!(Hash::check($request->get('current_password'), auth()->user()->password))) {
+      // The passwords matches
+      return redirect()->back()->with("error","Your current password does not matches with the password you provided. Please try again.");
+  }
+
+  if(strcmp($request->get('current_password'), $request->get('new_password')) == 0){
+      //Current password and new password are same
+      return redirect()->back()->with("error","New Password cannot be same as your current password. Please choose a different password.");
+  }
+
+  $validatedData = $request->validate([
+      'current_password' => 'required',
+      'new_password' => 'required|string|min:6|confirmed',
+  ]);
+  $validatedData['current_password'] = Hash::make($validatedData['current_password']) ;
+  $validatedData['new_password'] = Hash::make($validatedData['new_password']) ;
+  //Change Password
+
+
+ 
+ 
+  $users = User::find(Auth::user()->id);
+ 
+   $users->password =$validatedData['new_password'];
+
+   $users->save();
+
+  return redirect('/login')->with('success', 'password changed successfully updated.');
+
+}
+};

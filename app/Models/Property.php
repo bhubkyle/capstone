@@ -22,11 +22,11 @@ class Property extends Model
         'category',
         'property_name',
         'description',
-        'employee_id'
+        'user_id'
        
     ];
-   public function employee(){
-    return $this->belongsTo(Employee::class);
+   public function user(){
+    return $this->belongsTo(User::class);
    }
 
 }
