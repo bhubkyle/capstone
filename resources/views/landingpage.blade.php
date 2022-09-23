@@ -1,4 +1,3 @@
-
 @include('partials.header')
 <x-landingnav :company=$company />
 
